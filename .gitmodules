@@ -4,3 +4,15 @@
 [submodule "WDFuzz/HackSysExtremeVulnerableDriver"]
 	path = WDFuzz/HackSysExtremeVulnerableDriver
 	url = https://github.com/hacksysteam/HackSysExtremeVulnerableDriver.git
+[submodule "kvm-vmi/dwarf2json"]
+	path = kvm-vmi/dwarf2json
+	url = https://github.com/tklengyel/dwarf2json.git
+[submodule "kvm-vmi/kvm-vmi"]
+	path = kvm-vmi/kvm-vmi
+	url = https://github.com/KVM-VMI/kvm-vmi.git
+[submodule "kvm-vmi/libkvmi"]
+	path = kvm-vmi/libkvmi
+	url = https://github.com/bitdefender/libkvmi.git
+[submodule "kvm-vmi/libvmi"]
+	path = kvm-vmi/libvmi
+	url = https://github.com/0xf4b1/libvmi.git
