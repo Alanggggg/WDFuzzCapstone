@@ -1,0 +1,3 @@
+[submodule "WDFuzz/AFLplusplus"]
+	path = WDFuzz/AFLplusplus
+	url = https://github.com/AFLplusplus/AFLplusplus.git
