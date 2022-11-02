@@ -1,3 +1,6 @@
 [submodule "WDFuzz/AFLplusplus"]
 	path = WDFuzz/AFLplusplus
 	url = https://github.com/AFLplusplus/AFLplusplus.git
+[submodule "WDFuzz/HackSysExtremeVulnerableDriver"]
+	path = WDFuzz/HackSysExtremeVulnerableDriver
+	url = https://github.com/hacksysteam/HackSysExtremeVulnerableDriver.git
