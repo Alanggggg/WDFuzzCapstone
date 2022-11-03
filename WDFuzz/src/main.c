@@ -45,7 +45,8 @@ int main(int argc, char **argv) {
     input_path = NULL;
     input_size = 0;
     input_limit = 0;
-    mode = DYNAMIC;
+//    mode = DYNAMIC;
+    mode = EDGE;
     reconnect = false;
 
     module_start = 0;
@@ -88,12 +89,12 @@ int main(int argc, char **argv) {
             bp_file = optarg;
             break;
         case 'c':
-            if (!strcmp(optarg, "block"))
-                mode = BLOCK;
-            else if (!strcmp(optarg, "edge"))
+            if (!strcmp(optarg, "edge"))
                 mode = EDGE;
-            else if (!strcmp(optarg, "full"))
-                mode = FULL;
+//            else if (!strcmp(optarg, "block"))
+//                mode = BLOCK;
+//            else if (!strcmp(optarg, "full"))
+//                mode = FULL;
             break;
         case 'p':
             trace_pid = true;
