@@ -58,21 +58,21 @@ static event_response_t tracer_cb(vmi_instance_t vmi, vmi_event_t *event) {
     event->interrupt_event.reinject = 0;
 
     // check for error sink
-    for (int c = 0; c < __SINK_MAX; c++) {
-        if (sink_vaddr[c] == event->x86_regs->rip) {
-            stop(true);
+    // for (int c = 0; c < __SINK_MAX; c++) {
+    //     if (sink_vaddr[c] == event->x86_regs->rip) {
+    //         stop(true);
 
-            if (debug)
-                printf("\t Sink %s! Tracer counter: %lu.\n", sinks[c], tracer_counter);
+    //         if (debug)
+    //             printf("\t Sink %s! Tracer counter: %lu.\n", sinks[c], tracer_counter);
 
-            // Restore instruction byte at sink address
-            vmi_write_va(vmi, sink_vaddr[c], 0, 1, &sink_backup[c], NULL);
+    //         // Restore instruction byte at sink address
+    //         vmi_write_va(vmi, sink_vaddr[c], 0, 1, &sink_backup[c], NULL);
 
-            // Restore BP for sink afterwards
-            reset_breakpoint = sink_vaddr[c];
-            return VMI_EVENT_RESPONSE_TOGGLE_SINGLESTEP;
-        }
-    }
+    //         // Restore BP for sink afterwards
+    //         reset_breakpoint = sink_vaddr[c];
+    //         return VMI_EVENT_RESPONSE_TOGGLE_SINGLESTEP;
+    //     }
+    // }
 
     if (event->x86_regs->rax == HYPERCALL_BUFFER) {
         // Get physical address of buffer for input injection
@@ -106,7 +106,9 @@ static event_response_t tracer_cb(vmi_instance_t vmi, vmi_event_t *event) {
         tracer_counter = 0;
 
         // Inject fuzz input
-        if (!fuzz() || (mode == DYNAMIC && !start_trace(vmi, event->x86_regs->rip))) {
+        if (!fuzz() 
+        // || (mode == DYNAMIC && !start_trace(vmi, event->x86_regs->rip))
+        ) {
             failure = true;
             return 0;
         }
@@ -114,7 +116,6 @@ static event_response_t tracer_cb(vmi_instance_t vmi, vmi_event_t *event) {
         // Set BP for target address
         if (target_offset)
             assert(VMI_SUCCESS == vmi_write_va(vmi, module_start + target_offset, 0, 1, &cc, NULL));
-        //。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
         // Breakpoint is compiled into the harness. Just increase RIP.
         if (!start_offset) {
             event->x86_regs->rax = 0;
@@ -145,11 +146,12 @@ event_response_t handle_event_breakpoints(vmi_instance_t vmi, vmi_event_t *event
                 // EDGE mode, only CF instruction and target chained together
                 afl_instrument_location_edge(current_bp->address,
                                              event->x86_regs->rip - module_start);
-            } else {
-                // FULL mode, all blocks are chained together
-                afl_instrument_location(current_bp->address);
-                afl_instrument_location(event->x86_regs->rip - module_start);
-            }
+            } 
+            // else {
+            //     // FULL mode, all blocks are chained together
+            //     afl_instrument_location(current_bp->address);
+            //     afl_instrument_location(event->x86_regs->rip - module_start);
+            // }
 
             if (current_bp->taken_addr + module_start == event->x86_regs->rip &&
                 !current_bp->taken) {
@@ -165,7 +167,9 @@ event_response_t handle_event_breakpoints(vmi_instance_t vmi, vmi_event_t *event
         }
 
         // Restore breakpoint
-        if (mode == FULL || (mode == EDGE && !(current_bp->taken && current_bp->not_taken)))
+        if (
+            // mode == FULL || 
+        (mode == EDGE && !(current_bp->taken && current_bp->not_taken)))
             assert(VMI_SUCCESS ==
                    vmi_write_va(vmi, current_bp->address + module_start, 0, 1, &cc, NULL));
 
@@ -183,15 +187,17 @@ event_response_t handle_event_breakpoints(vmi_instance_t vmi, vmi_event_t *event
      * discard interrupts that are triggered independently and cause problems, such as interrupt
      * handlers.
      */
-    if (mode != BLOCK && coverage_enabled)
+    if (
+        // mode != BLOCK && 
+    coverage_enabled)
         return VMI_EVENT_RESPONSE_TOGGLE_SINGLESTEP;
 
     // BLOCK mode, only block is reported
-    if (coverage_enabled && current_pid == harness_pid) {
-        current_bp->taken = true;
-        afl_instrument_location_block(event->x86_regs->rip - module_start);
-        write_coverage(current_bp->address);
-    }
+    // if (coverage_enabled && current_pid == harness_pid) {
+    //     current_bp->taken = true;
+    //     afl_instrument_location_block(event->x86_regs->rip - module_start);
+    //     write_coverage(current_bp->address);
+    // }
 
     return 0;
 }
@@ -209,7 +215,7 @@ bool setup_trace(vmi_instance_t vmi) {
     if (target_offset && VMI_FAILURE == vmi_read_va(vmi, module_start + target_offset, 0, 1, &target_byte, NULL))
         return false;
 
-    if (mode != DYNAMIC) {
+    // if (mode != DYNAMIC) {
         handle_event = &handle_event_breakpoints;
 
         if (breakpoints == NULL) {
@@ -228,23 +234,24 @@ bool setup_trace(vmi_instance_t vmi) {
 
                 unsigned char backup;
 
-                if (mode == BLOCK) {
-                    assert(VMI_SUCCESS ==
-                           vmi_read_va(vmi, address + module_start, 0, 1, &backup, NULL));
-                    insert_breakpoint(breakpoints, address, 0, 0, backup);
+                // if (mode == BLOCK) {
+                //     assert(VMI_SUCCESS ==
+                //            vmi_read_va(vmi, address + module_start, 0, 1, &backup, NULL));
+                //     insert_breakpoint(breakpoints, address, 0, 0, backup);
 
-                    assert(VMI_SUCCESS ==
-                           vmi_read_va(vmi, taken_addr + module_start, 0, 1, &backup, NULL));
-                    insert_breakpoint(breakpoints, taken_addr, 0, 0, backup);
+                //     assert(VMI_SUCCESS ==
+                //            vmi_read_va(vmi, taken_addr + module_start, 0, 1, &backup, NULL));
+                //     insert_breakpoint(breakpoints, taken_addr, 0, 0, backup);
 
-                    assert(VMI_SUCCESS ==
-                           vmi_read_va(vmi, not_taken_addr + module_start, 0, 1, &backup, NULL));
-                    insert_breakpoint(breakpoints, not_taken_addr, 0, 0, backup);
-                } else {
+                //     assert(VMI_SUCCESS ==
+                //            vmi_read_va(vmi, not_taken_addr + module_start, 0, 1, &backup, NULL));
+                //     insert_breakpoint(breakpoints, not_taken_addr, 0, 0, backup);
+                // } 
+                // else {
                     assert(VMI_SUCCESS ==
                            vmi_read_va(vmi, address + module_start, 0, 1, &backup, NULL));
                     insert_breakpoint(breakpoints, address, taken_addr, not_taken_addr, backup);
-                }
+                // }
             }
 
             fclose(fp);
@@ -253,16 +260,20 @@ bool setup_trace(vmi_instance_t vmi) {
         for (int pos = 0; pos < breakpoints->size; pos++) {
             struct node *node = breakpoints->nodes[pos];
             while (node) {
-                if (mode == FULL || (mode == EDGE && !(node->taken && node->not_taken)) ||
-                    (mode == BLOCK && !node->taken))
+                if (
+                    // mode == FULL || 
+                (mode == EDGE && !(node->taken && node->not_taken)) 
+                // ||(mode == BLOCK && !node->taken)
+                )
                     assert(VMI_SUCCESS ==
                            vmi_write_va(vmi, node->address + module_start, 0, 1, &cc, NULL));
                 node = node->next;
             }
         }
-    } else {
-        handle_event = &handle_event_dynamic;
-    }
+    // } 
+    // else {
+    //     handle_event = &handle_event_dynamic;
+    // }
 
     char mask = 0;
     for (unsigned char i = 0; i < vmi_get_num_vcpus(vmi); i++)
@@ -282,33 +293,32 @@ bool setup_trace(vmi_instance_t vmi) {
 
     return true;
 }
-//。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
-bool setup_sinks(vmi_instance_t vmi) {
-    for (int c = 0; c < __SINK_MAX; c++) {
-        if (!sink_vaddr[c] && VMI_FAILURE == vmi_translate_ksym2v(vmi, sinks[c], &sink_vaddr[c])) {
-            if (debug)
-                printf("Failed to find %s\n", sinks[c]);
-            return false;
-        }
+// bool setup_sinks(vmi_instance_t vmi) {
+//     for (int c = 0; c < __SINK_MAX; c++) {
+//         if (!sink_vaddr[c] && VMI_FAILURE == vmi_translate_ksym2v(vmi, sinks[c], &sink_vaddr[c])) {
+//             if (debug)
+//                 printf("Failed to find %s\n", sinks[c]);
+//             return false;
+//         }
 
-        registers_t regs = {0};
-        vmi_get_vcpuregs(vmi, &regs, 0);
+//         registers_t regs = {0};
+//         vmi_get_vcpuregs(vmi, &regs, 0);
 
-        if (!sink_paddr[c] &&
-            VMI_FAILURE == vmi_pagetable_lookup(vmi, regs.x86.cr3, sink_vaddr[c], &sink_paddr[c]))
-            return false;
-        if (VMI_FAILURE == vmi_read_pa(vmi, sink_paddr[c], 1, &sink_backup[c], NULL))
-            return false;
-        if (VMI_FAILURE == vmi_write_pa(vmi, sink_paddr[c], 1, &cc, NULL))
-            return false;
+//         if (!sink_paddr[c] &&
+//             VMI_FAILURE == vmi_pagetable_lookup(vmi, regs.x86.cr3, sink_vaddr[c], &sink_paddr[c]))
+//             return false;
+//         if (VMI_FAILURE == vmi_read_pa(vmi, sink_paddr[c], 1, &sink_backup[c], NULL))
+//             return false;
+//         if (VMI_FAILURE == vmi_write_pa(vmi, sink_paddr[c], 1, &cc, NULL))
+//             return false;
 
-        if (debug)
-            printf("[TRACER] Setting breakpoint on sink %s 0x%lx -> 0x%lx, backup 0x%x\n", sinks[c],
-                   sink_vaddr[c], sink_paddr[c], sink_backup[c]);
-    }
+//         if (debug)
+//             printf("[TRACER] Setting breakpoint on sink %s 0x%lx -> 0x%lx, backup 0x%x\n", sinks[c],
+//                    sink_vaddr[c], sink_paddr[c], sink_backup[c]);
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 void close_trace(vmi_instance_t vmi) {
     vmi_clear_event(vmi, &singlestep_event, NULL);
@@ -320,7 +330,7 @@ void close_trace(vmi_instance_t vmi) {
     if (target_offset)
         vmi_write_va(vmi, module_start + target_offset, 0, 1, &target_byte, NULL);
 
-    if (mode != DYNAMIC) {
+    // if (mode != DYNAMIC) {
         for (int i = 0; i < 0x1000; i++) {
             struct node *node = breakpoints->nodes[i];
             while (node) {
@@ -328,16 +338,16 @@ void close_trace(vmi_instance_t vmi) {
                 node = node->next;
             }
         }
-    }
+    // }
 
     if (debug)
         printf("Closing tracer\n");
 }
 
-void clear_sinks(vmi_instance_t vmi) {
-    for (int c = 0; c < __SINK_MAX; c++)
-        vmi_write_pa(vmi, sink_paddr[c], 1, &sink_backup[c], NULL);
-}
+// void clear_sinks(vmi_instance_t vmi) {
+//     for (int c = 0; c < __SINK_MAX; c++)
+//         vmi_write_pa(vmi, sink_paddr[c], 1, &sink_backup[c], NULL);
+// }
 
 bool init_tracer(vmi_instance_t vmi) {
     // Setup crashing sinks
@@ -353,7 +363,7 @@ bool init_tracer(vmi_instance_t vmi) {
 
 void teardown() {
     close_trace(vmi);
-    clear_sinks(vmi);
+    // clear_sinks(vmi);
     free(input);
     fclose(coverage_fp);
 }

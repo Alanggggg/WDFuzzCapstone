@@ -17,13 +17,12 @@ bool setup_vmi(vmi_instance_t *vmi, char *socket, char *json) {
         return false;
     }
 
-    if (mode == DYNAMIC && cs_handle == 0) {
-        if (cs_open(CS_ARCH_X86, vmi_get_page_mode(*vmi, 0) == VMI_PM_IA32E ? CS_MODE_64 : CS_MODE_32, &cs_handle)) {
-            fprintf(stderr, "Capstone init failed\n");
-            exit(-1);
-        }
-    }
-
+    // if (mode == DYNAMIC && cs_handle == 0) {
+    //     if (cs_open(CS_ARCH_X86, vmi_get_page_mode(*vmi, 0) == VMI_PM_IA32E ? CS_MODE_64 : CS_MODE_32, &cs_handle)) {
+    //         fprintf(stderr, "Capstone init failed\n");
+    //         exit(-1);
+    //     }
+    // }
     return true;
 }
 
