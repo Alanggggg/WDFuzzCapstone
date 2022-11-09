@@ -45,7 +45,6 @@ int main(int argc, char **argv) {
     input_path = NULL;
     input_size = 0;
     input_limit = 0;
-//    mode = DYNAMIC;
     mode = EDGE;
     reconnect = false;
 
@@ -91,10 +90,6 @@ int main(int argc, char **argv) {
         case 'c':
             if (!strcmp(optarg, "edge"))
                 mode = EDGE;
-//            else if (!strcmp(optarg, "block"))
-//                mode = BLOCK;
-//            else if (!strcmp(optarg, "full"))
-//                mode = FULL;
             break;
         case 'p':
             trace_pid = true;
@@ -102,7 +97,7 @@ int main(int argc, char **argv) {
         case 'r':
             reconnect = true;
             break;
-        case 'h': /* fall-through */
+        case 'h':
         default:
             usage();
             return -1;

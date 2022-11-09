@@ -1,6 +1,5 @@
 #include "fuzz.h"
 #include "private.h"
-// #include "tracer_dynamic.h"
 
 static bool fuzz_loop = false;
 

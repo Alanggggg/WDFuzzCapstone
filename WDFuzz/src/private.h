@@ -45,7 +45,7 @@ uint8_t target_byte;
 
 csh cs_handle;
 
-enum coverage { DYNAMIC, FULL, BLOCK, EDGE };
+enum coverage { EDGE };
 enum coverage mode;
 char *bp_file;
 bool coverage_enabled;
