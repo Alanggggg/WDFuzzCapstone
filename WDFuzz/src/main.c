@@ -13,7 +13,7 @@ static void usage(void) {
     printf("\tOptional inputs:\n");
     printf("\t  --limit <limit FUZZING execution to # of CF instructions>\n");
     printf("\t  --breakpoints <file that contains addresses of CF instructions>\n");
-    printf("\t  --coverage <full|block|edge coverage in breakpoint mode>\n");
+    printf("\t  --coverage <edge coverage in breakpoint mode>\n");
     printf("\t  --pid\n");
     printf("\t  --reconnect\n");
     printf("\t  --debug\n");

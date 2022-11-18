@@ -33,7 +33,9 @@ void afl_instrument_location(unsigned long cur_loc) {
 void afl_instrument_location_edge(unsigned long prev_loc, unsigned long cur_loc) {
     if (!id_str)
         return;
-
+    //cur_loc=10101; prev_loc=01010
+    // cur_loc=0000000000001 ^ 1010100000000 = 1010100000001
+    // 1010100000001 & 01111111111111111
     cur_loc = (cur_loc >> 4) ^ (cur_loc << 8);
     cur_loc &= MAP_SIZE - 1;
 
